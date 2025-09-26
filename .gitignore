@@ -1,0 +1,21 @@
+# Python build artifacts
+dist/
+build/
+*.egg-info/
+
+# Bytecode & caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Envs
+.venv/
+venv/
+
+# IDE/OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

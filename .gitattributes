@@ -1,0 +1,4 @@
+# Exclude from 'Download source' and git-archive
+examples/ export-ignore
+tests/    export-ignore
+.github/  export-ignore

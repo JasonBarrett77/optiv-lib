@@ -1,0 +1,4 @@
+prune examples
+prune tests
+include README.md LICENSE
+graft src/optiv_lib
