@@ -1,7 +1,7 @@
 # src/optiv_lib/providers/pan/util.py
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterable
+from typing import Any, Callable, Iterable
 
 import xmltodict
 
@@ -29,11 +29,6 @@ def yn_bool(s: str | None) -> bool:
     return s is not None and s.strip().lower() in {"y", "yes", "true", "1"}
 
 
-def attr(node: Dict[str, Any], name: str) -> str | None:
-    v = node.get(f"@{name}")
-    return None if v is None else str(v).strip()
-
-
 def collect_members(tag_node: Any) -> list[str]:
     if not isinstance(tag_node, dict):
         return []
@@ -41,5 +36,4 @@ def collect_members(tag_node: Any) -> list[str]:
 
 
 def xpath_dg_address(device_group: str) -> str:
-    # PAN names disallow quotes, so direct insert is safe
     return f"/config/devices/entry/device-group/entry[@name='{device_group}']/address"
