@@ -1,12 +1,11 @@
-# src/optiv_lib/providers/pan/objects/address/api.py
 from __future__ import annotations
 
 from typing import List, Optional
 
 from optiv_lib.providers.pan import ops
-from optiv_lib.providers.pan.objects.address.model import AddressObject, ConfigSource
+from optiv_lib.providers.pan.objects.address.model import AddressObject
 from optiv_lib.providers.pan.objects.address.parser import parse_addresses
-from optiv_lib.providers.pan.objects.address.serializer import entry_xpath, parent_xpath, render_entry
+from optiv_lib.providers.pan.objects.address.serializer import (entry_xpath, parent_xpath, render_entry, )
 from optiv_lib.providers.pan.session import PanoramaSession
 
 
@@ -15,29 +14,24 @@ def list_addresses(*, session: PanoramaSession, candidate: bool = True, device_g
     List address objects from candidate or running config.
     """
     xpath = parent_xpath(device_group)
-    if candidate:
-        result = ops.config_get(session=session, xpath=xpath)
-        config_source: ConfigSource = "candidate"
-    else:
-        result = ops.config_show(session=session, xpath=xpath)
-        config_source = "running"
-    return parse_addresses(result, source=config_source, device_group=device_group, strict=True)
+    result = (ops.config_get(session=session, xpath=xpath) if candidate else ops.config_show(session=session, xpath=xpath))
+    return parse_addresses(result, strict=True)
 
 
-def create_address(address_object: AddressObject, *, session: PanoramaSession) -> dict:
+def create_address(address_object: AddressObject, *, device_group: Optional[str], session: PanoramaSession, ) -> dict:
     """
-    Create (or merge) an address entry under the correct scope.
+    Create (or merge) an address entry.
     """
-    xpath = parent_xpath(address_object.device_group)
+    xpath = parent_xpath(device_group)
     element = render_entry(address_object)
     return ops.config_set(session=session, xpath=xpath, element=element)
 
 
-def update_address(address_object: AddressObject, *, session: PanoramaSession) -> dict:
+def update_address(address_object: AddressObject, *, device_group: Optional[str], session: PanoramaSession, ) -> dict:
     """
     Replace an existing address entry in place.
     """
-    xpath = entry_xpath(address_object.name, address_object.device_group)
+    xpath = entry_xpath(address_object.name, device_group)
     element = render_entry(address_object)
     return ops.config_edit(session=session, xpath=xpath, element=element)
 

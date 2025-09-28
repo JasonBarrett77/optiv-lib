@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
-from optiv_lib.providers.pan.objects.address.model import AddressKind, AddressObject, ConfigSource
+from optiv_lib.providers.pan.objects.address.model import AddressKind, AddressObject
 from optiv_lib.providers.pan.util import as_list, collect_members, node_text, yn_bool
 
 
@@ -13,7 +13,7 @@ class AddressParseError(ValueError):
 KIND_FIELDS: Tuple[AddressKind, ...] = ("ip-netmask", "ip-range", "ip-wildcard", "fqdn")
 
 
-def parse_addresses(result: Dict[str, Any], *, source: ConfigSource, device_group: Optional[str] = None, strict: bool = True, ) -> List[AddressObject]:
+def parse_addresses(result: Dict[str, Any], *, strict: bool = True, ) -> List[AddressObject]:
     """
     Convert ops.config_show/get result (inner 'result') into AddressObject items.
     """
@@ -21,7 +21,7 @@ def parse_addresses(result: Dict[str, Any], *, source: ConfigSource, device_grou
     objs: List[AddressObject] = []
     for entry in entries:
         try:
-            objs.append(_entry_to_model(entry, source=source, device_group=device_group))
+            objs.append(_entry_to_model(entry))
         except Exception as exc:
             if strict:
                 raise AddressParseError(f"failed to parse address entry: {exc}") from exc
@@ -42,7 +42,7 @@ def _pick_entries(result: Dict[str, Any]) -> List[Dict[str, Any]]:
     return [e for e in as_list(raw) if isinstance(e, dict)]
 
 
-def _entry_to_model(entry: Dict[str, Any], *, source: ConfigSource, device_group: Optional[str], ) -> AddressObject:
+def _entry_to_model(entry: Dict[str, Any]) -> AddressObject:
     name = (entry.get("@name") or "").strip()
     if not name:
         raise ValueError("missing @name")
@@ -52,7 +52,7 @@ def _entry_to_model(entry: Dict[str, Any], *, source: ConfigSource, device_group
     disable_override = yn_bool(node_text(entry.get("disable-override")))
     tags = tuple(collect_members(entry.get("tag")))
 
-    return AddressObject(name=name, kind=kind, value=value, description=description, tags=tags, disable_override=disable_override, device_group=device_group, source=source, )
+    return AddressObject(name=name, kind=kind, value=value, description=description, tags=tags, disable_override=disable_override, )
 
 
 def _detect_kind_value(entry: Dict[str, Any]) -> Tuple[AddressKind, str]:
