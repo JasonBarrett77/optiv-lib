@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import ssl
-from typing import Union, overload
+from typing import Callable, Union, overload
 
 import requests
 import truststore
@@ -21,11 +21,15 @@ VerifyType = Union[bool, str]
 
 
 class PanoramaAuthError(RuntimeError):
-    pass
+    """Authentication/keygen failure when obtaining or validating the API key."""
 
 
 class PanoramaHTTPError(RuntimeError):
-    pass
+    """HTTP or API-layer error returned while talking to Panorama."""
+
+
+class PanoramaTimeoutError(PanoramaHTTPError):
+    """Request timed out (after retries) while communicating with Panorama."""
 
 
 class _NoVerifyAdapter(HTTPAdapter):

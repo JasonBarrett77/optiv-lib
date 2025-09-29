@@ -101,8 +101,9 @@ class AppConfig:
         if isinstance(pano_src, dict):
             h = _resolve(pano_src.get("hostname"))
             u = _resolve(pano_src.get("username"))
-            pw = _secret_from(pano_src.get("password"))
-            if h and u and pw:
+            pw_node = pano_src.get("password")
+            pw = _secret_from(pw_node)
+            if h and u and (pw_node is not None):
                 pano_cfg = PanoramaConfig(
                     hostname=str(h),
                     username=str(u),

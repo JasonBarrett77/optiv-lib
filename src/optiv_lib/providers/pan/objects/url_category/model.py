@@ -1,4 +1,5 @@
-from __future__ import annotations, annotations
+# src/optiv_lib/providers/pan/objects/url_category/model.py
+from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field

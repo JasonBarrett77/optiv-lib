@@ -5,9 +5,9 @@ from time import sleep
 from typing import Any, Dict
 
 import requests
-from optiv_lib.providers.pan.util import parse_xml
 
-from .session import PanoramaHTTPError, PanoramaSession
+from optiv_lib.providers.pan.session import PanoramaHTTPError, PanoramaSession, PanoramaTimeoutError
+from optiv_lib.providers.pan.util import parse_xml
 
 
 def _check_status(doc: dict) -> None:
@@ -63,6 +63,8 @@ def _call(*, session: PanoramaSession, method: str, params: Dict[str, Any], retr
         except requests.RequestException as e:
             # Other client-side errors: do not retry
             raise PanoramaHTTPError(str(e)) from None
+
+    raise PanoramaHTTPError("Request failed after retries.")
 
 
 # ---------------------------

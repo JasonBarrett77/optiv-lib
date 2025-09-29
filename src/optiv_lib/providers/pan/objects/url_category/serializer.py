@@ -1,10 +1,12 @@
+# src/optiv_lib/providers/pan/objects/url_category/serializer.py
 from __future__ import annotations
 
 from collections import OrderedDict
+from typing import Any, Dict, Iterable, List
 
 import xmltodict
 
-from optiv_lib.providers.pan.objects.url_category.model import UrlCategoryObject
+from .model import UrlCategoryObject
 
 
 def parent_xpath(device_group: str | None) -> str:
@@ -19,9 +21,13 @@ def entry_xpath(name: str, device_group: str | None) -> str:
     return f"{parent_xpath(device_group)}/entry[@name='{name}']"
 
 
-def render_entry(obj: UrlCategoryObject) -> str:
+# ----------------------------
+# XML serialization
+# ----------------------------
+
+def to_xml(obj: UrlCategoryObject) -> str:
     """
-    Serialize UrlCategoryObject to a single <entry>.
+    Serialize UrlCategoryObject to a PAN-OS <entry> XML fragment.
 
     Layout:
       <entry name="...">
@@ -30,7 +36,7 @@ def render_entry(obj: UrlCategoryObject) -> str:
         <description>...</description>
       </entry>
     """
-    entry = OrderedDict()
+    entry: Dict[str, Any] = OrderedDict()
     entry["@name"] = obj.name
     members = list(obj.urls if obj.type == "URL List" else obj.categories)
     entry["list"] = {"member": members}
@@ -38,3 +44,38 @@ def render_entry(obj: UrlCategoryObject) -> str:
     if obj.description:
         entry["description"] = obj.description
     return xmltodict.unparse({"entry": entry}, full_document=False)
+
+
+def to_xml_list(objs: Iterable[UrlCategoryObject]) -> List[str]:
+    """Serialize many UrlCategoryObject items to a list of <entry> XML strings."""
+    return [to_xml(o) for o in objs]
+
+
+# ----------------------------
+# JSON serialization
+# ----------------------------
+
+def to_json_dict(obj: UrlCategoryObject) -> Dict[str, Any]:
+    """Serialize to a compact JSON-ready dict."""
+    d: Dict[str, Any] = {
+        "name": obj.name,
+        "type": obj.type,
+    }
+    if obj.type == "URL List":
+        d["urls"] = list(obj.urls)
+    else:
+        d["categories"] = list(obj.categories)
+    if obj.description:
+        d["description"] = obj.description
+    return d
+
+
+def to_json_list(objs: Iterable[UrlCategoryObject]) -> List[Dict[str, Any]]:
+    """Serialize many to JSON-ready dicts."""
+    return [to_json_dict(o) for o in objs]
+
+
+def to_json(obj: UrlCategoryObject, *, indent: int = 2) -> str:
+    """Serialize one object to a JSON string."""
+    import json
+    return json.dumps(to_json_dict(obj), indent=indent, ensure_ascii=False)

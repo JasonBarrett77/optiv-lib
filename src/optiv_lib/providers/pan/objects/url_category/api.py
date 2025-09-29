@@ -1,11 +1,12 @@
+# src/optiv_lib/providers/pan/objects/url_category/api.py
 from __future__ import annotations
 
 from typing import List, Optional
 
 from optiv_lib.providers.pan import ops
 from optiv_lib.providers.pan.objects.url_category.model import UrlCategoryObject
-from optiv_lib.providers.pan.objects.url_category.parser import parse_url_categories
-from optiv_lib.providers.pan.objects.url_category.serializer import entry_xpath, parent_xpath, render_entry
+from optiv_lib.providers.pan.objects.url_category.parser import from_xml
+from optiv_lib.providers.pan.objects.url_category.serializer import entry_xpath, parent_xpath, to_xml
 from optiv_lib.providers.pan.session import PanoramaSession
 
 
@@ -21,20 +22,20 @@ def list_url_categories(*, session: PanoramaSession, candidate: bool = True, dev
     """List custom URL categories from candidate or running config."""
     xpath = parent_xpath(device_group)
     result = ops.config_get(session=session, xpath=xpath) if candidate else ops.config_show(session=session, xpath=xpath)
-    return parse_url_categories(result, strict=True)
+    return from_xml(result, strict=True)
 
 
 def create_url_category(url_category: UrlCategoryObject, *, device_group: Optional[str], session: PanoramaSession, ) -> dict:
     """Create (or merge) a custom URL category."""
     xpath = parent_xpath(device_group)
-    element = render_entry(url_category)
+    element = to_xml(url_category)
     return ops.config_set(session=session, xpath=xpath, element=element)
 
 
 def update_url_category(url_category: UrlCategoryObject, *, device_group: Optional[str], session: PanoramaSession, ) -> dict:
     """Replace an existing custom URL category entry in place."""
     xpath = entry_xpath(url_category.name, device_group)
-    element = render_entry(url_category)
+    element = to_xml(url_category)
     return ops.config_edit(session=session, xpath=xpath, element=element)
 
 
