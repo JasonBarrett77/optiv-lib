@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import ssl
-from typing import Union
+from typing import Union, overload
 
 import requests
 import truststore
@@ -10,20 +10,22 @@ import xmltodict
 from requests.adapters import HTTPAdapter
 from urllib3.poolmanager import PoolManager
 
+from optiv_lib.config import AppConfig, PanoramaConfig
+
 try:
     truststore.inject_into_ssl()
 except Exception:
     pass
 
-VerifyType = Union[bool, str]  # bool or CA bundle path
+VerifyType = Union[bool, str]
 
 
 class PanoramaAuthError(RuntimeError):
-    """Auth or key generation failure."""
+    pass
 
 
 class PanoramaHTTPError(RuntimeError):
-    """HTTP error talking to Panorama."""
+    pass
 
 
 class _NoVerifyAdapter(HTTPAdapter):
@@ -59,48 +61,67 @@ def _redact(text: str, secret: str) -> str:
         return "[REDACTED]"
 
 
-def _api_key(base_url, username, password, verify, timeout) -> str:
+def _api_key(*, base_url: str, username: str, password_get: Callable[[], str], verify: VerifyType, timeout: float) -> str:
+    pwd = password_get()
     try:
-        r = requests.request(method="POST", url=base_url, params={"type": "keygen", "user": username, "password": password}, verify=verify, timeout=timeout, )
+        r = requests.request("POST", base_url, params={"type": "keygen", "user": username, "password": pwd}, verify=verify, timeout=timeout, )
         r.raise_for_status()
     except requests.RequestException as e:
-        msg = f"Panorama connection error: {_redact(str(e), password)}"
-        del password
-        raise PanoramaHTTPError(msg) from None
-    del password
+        raise PanoramaHTTPError(f"Panorama connection error: {_redact(str(e), pwd)}") from None
+    finally:
+        pwd = ""
+
     try:
         data = xmltodict.parse(r.text)
         key = data.get("response", {}).get("result", {}).get("key")
     except Exception as e:
         raise PanoramaAuthError("Keygen parse error.") from e
-
     if not key:
         raise PanoramaAuthError("Failed to retrieve API key.")
     return key
+
+
+def _require_pano_cfg(obj: PanoramaConfig | AppConfig) -> PanoramaConfig:
+    if isinstance(obj, PanoramaConfig):
+        return obj
+    if isinstance(obj, AppConfig) and obj.panorama:
+        return obj.panorama
+    raise ValueError("PanoramaConfig is required. Pass a PanoramaConfig or an AppConfig with .panorama populated.")
 
 
 class PanoramaSession(requests.Session):
     """
     Thin requests.Session for Panorama XML API.
 
-    - Builds API key on init (type=keygen).
-    - Injects ?key=... into every request.
-    - Respects verify: bool or CA bundle path.
+    Accepts either:
+      - PanoramaConfig
+      - AppConfig (must have .panorama)
+
+    Raises ValueError if config is missing.
     """
 
-    def __init__(self, *, hostname: str, username: str, password: str, verify: VerifyType = True, timeout: float = 15.0, ):
-        super().__init__()
-        self.base_url = f"https://{hostname}/api/"
-        self.timeout = timeout
-        self.verify = verify
+    @overload
+    def __init__(self, cfg: PanoramaConfig):
+        ...
 
-        if verify is False:
+    @overload
+    def __init__(self, cfg: AppConfig):
+        ...
+
+    def __init__(self, cfg: PanoramaConfig | AppConfig):
+        super().__init__()
+        pano = _require_pano_cfg(cfg)
+
+        self.base_url = f"https://{pano.hostname}/api/"
+        self.timeout = pano.timeout
+        self.verify = pano.verify
+
+        if pano.verify is False:
             adapter = _NoVerifyAdapter()
             self.mount("https://", adapter)
             self.mount("http://", adapter)
 
-        self.api_key = _api_key(base_url=self.base_url, username=username, password=password, verify=self.verify, timeout=self.timeout, )
-        del password
+        self.api_key = _api_key(base_url=self.base_url, username=pano.username, password_get=pano.password.get, verify=self.verify, timeout=self.timeout, )
 
     def request(self, method: str, url: str, **kwargs):
         full_url = url if url.startswith("http") else (self.base_url + url.lstrip("/"))
