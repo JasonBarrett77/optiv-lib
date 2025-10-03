@@ -1,5 +1,6 @@
+# pyproject.toml
 [build-system]
-requires = ["setuptools~=80.9.0"]
+requires = ["setuptools~=80.9.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,8 +9,9 @@ version = "0.99.4"
 description = "Automation framework: Azure + PAN OS, with provider sessions and helpers."
 readme = "README.md"
 requires-python = ">=3.12"
-license = {text = "Proprietary"}
-authors = [{name = "Your Org"}]
+license = "LicenseRef-Proprietary"
+classifiers = ["License :: Other/Proprietary License",]
+authors = [{ name = "Your Org" }]
 dependencies = [
     "requests~=2.32.5",
     "xmltodict~=1.0.2",
@@ -18,8 +20,14 @@ dependencies = [
     "azure-mgmt-resource~=24.0.0",
     "azure-mgmt-network~=29.0.0",
     "azure-mgmt-compute~=37.0.0",
-    "truststore~=0.10.4"
-]
+    "truststore~=0.10.4"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+license-files = ["LICENSE*", "NOTICE*", "THIRD-PARTY-NOTICES.md"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"optiv_lib" = ["py.typed"]

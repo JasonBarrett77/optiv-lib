@@ -1,4 +1,5 @@
 prune examples
 prune tests
-include README.md LICENSE
-graft src/optiv_lib
+include README.md
+include LICENSE
+recursive-include src/optiv_lib py.typed

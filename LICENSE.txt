@@ -1,0 +1,49 @@
+SPDX-License-Identifier: LicenseRef-Proprietary
+Copyright (c) 2020 – 2025. Optiv Security Inc. All Rights Reserved.
+
+OPTIV-LIB PROPRIETARY LICENSE v1.0
+
+1. Grant. Subject to this License, Optiv Security Inc. grants you a limited, non-exclusive,
+   non-transferable, revocable license to install and use the "optiv-lib"
+   software (the “Software”) solely for your internal business purposes.
+   No hosting as a service, service-bureau, or resale without prior written consent.
+
+2. Restrictions. You shall not: (a) sublicense, sell, rent, lease, loan, or
+   distribute the Software to any third party; (b) use the Software to develop a
+   competing product; (c) reverse engineer, decompile, or disassemble the
+   Software except to the extent permitted by applicable law; (d) remove or alter
+   any notices; (e) use the Software in violation of law.
+
+3. Ownership. The Software is licensed, not sold. Optiv Security Inc. and its licensors own
+   all rights, title, and interest in and to the Software.
+
+4. Confidentiality. The Software and any non-public information about it are
+   Optiv Security Inc. Confidential Information. You will protect it with at least
+   reasonable care and not disclose it to third parties.
+
+5. Term and Termination. This License is effective until terminated. It
+   terminates automatically if you materially breach it. Upon termination, you
+   must stop using and destroy all copies of the Software. Sections 2–9 survive.
+
+6. Third-Party Components. The Software may interoperate with or depend on
+   third-party packages that are licensed under their own terms. You must comply
+   with those licenses. See NOTICE and THIRD-PARTY-NOTICES.md.
+
+7. Warranty Disclaimer. THE SOFTWARE IS PROVIDED “AS IS” WITHOUT WARRANTIES OF
+   ANY KIND, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION IMPLIED WARRANTIES
+   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+8. Limitation of Liability. TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT
+   WILL Optiv Security Inc. BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
+   PUNITIVE DAMAGES, OR FOR LOST PROFITS, REVENUE, DATA, OR GOODWILL, EVEN IF
+   ADVISED OF THE POSSIBILITY. Optiv Security Inc.’S TOTAL LIABILITY FOR ALL CLAIMS SHALL
+   NOT EXCEED THE AMOUNT PAID FOR THE SOFTWARE IN THE 12 MONTHS BEFORE THE CLAIM
+   OR $100, WHICHEVER IS GREATER.
+
+9. Export/Compliance. You will comply with applicable export, sanctions, and
+   anti-corruption laws.
+
+10. Governing Law. [Choose one, e.g., “Florida, USA, excluding conflict rules.”]
+    The U.N. CISG does not apply.
+
+Contact: [jason.barrett@optiv.com]
