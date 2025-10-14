@@ -115,3 +115,40 @@ def op(*, session: PanoramaSession, cmd: str) -> dict:
     Example cmd: "<show><config><running><xpath>shared/address</xpath></running></config></show>"
     """
     return _call(session=session, method="GET", params={"type": "op", "cmd": cmd})
+
+
+# ---------------------------
+# Panorama → device proxy ops/config
+# ---------------------------
+
+def op_on_device(*, session: "PanoramaSession", cmd: str, target: str, vsys: str | None = None, ) -> dict:
+    """
+    Run an operational command on a managed firewall via Panorama proxy.
+    Returns inner 'result'.
+    """
+    params: Dict[str, Any] = {"type": "op", "cmd": cmd, "target": target}
+    if vsys:
+        params["vsys"] = vsys
+    return _call(session=session, method="GET", params=params)
+
+
+def config_show_on_device(*, session: "PanoramaSession", xpath: str, target: str, ) -> dict:
+    """
+    Fetch RUNNING config node from device via Panorama proxy.
+    Returns inner 'result'.
+    """
+    params: Dict[str, Any] = {
+        "type": "config", "action": "show", "xpath": xpath, "target": target,
+        }
+    return _call(session=session, method="GET", params=params)
+
+
+def config_get_on_device(*, session: "PanoramaSession", xpath: str, target: str, ) -> dict:
+    """
+    Fetch CANDIDATE config node from device via Panorama proxy.
+    Returns inner 'result'.
+    """
+    params: Dict[str, Any] = {
+        "type": "config", "action": "get", "xpath": xpath, "target": target,
+        }
+    return _call(session=session, method="GET", params=params)
