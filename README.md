@@ -1,4 +1,4 @@
-# optiv-lib
+# 🚀 optiv-lib
 
 Simplified Python access to vendor APIs for quick automation. The library handles sessions, auth, requests, data transforms, and serialization so you focus on the task instead of the plumbing.
 
@@ -20,27 +20,32 @@ Simplified Python access to vendor APIs for quick automation. The library handle
 
 ## Install
 
+Choose one of the following.
+
+### From GitHub tag (recommended)
 ```bash
-# from a local checkout
-pip install -U .
-# or from a built wheel
-pip install dist/optiv_lib-<version>-py3-none-any.whl
+pip install --no-cache-dir "git+https://github.com/<org>/optiv-lib@v<version>"
 ```
 
-> Requires Python 3.12+. No extra deps beyond the standard library unless a provider needs them.
+### From a GitHub Release wheel
+
+```bash
+pip install --no-cache-dir "https://github.com/<org>/optiv-lib/releases/download/v<version>/optiv_lib-<version>-py3-none-any.whl"
+```
+
+> Requires Python 3.12+. Provider submodules (Azure, PAN-OS) pull any needed deps.
 
 ---
 
 ## Quick Start
 
-### PAN-OS (Panorama) example
+### PAN-OS (Panorama)
 
 ```python
 from optiv_lib.config import PanoramaConfig, Secret
 from optiv_lib.providers.pan.session import PanoramaSession
 from optiv_lib.providers.pan.objects.url_category.api import list_url_categories
 
-# Secrets can be sourced lazily (env var, vault, etc.)
 cfg = PanoramaConfig(
     hostname="panorama.example.com",
     username="apiuser",
@@ -48,18 +53,17 @@ cfg = PanoramaConfig(
 )
 
 with PanoramaSession(cfg) as pano:
-    cats = list_url_categories(pano)
-    for c in cats:
+    for c in list_url_categories(pano):
         print(c.name, c.action)
 ```
 
-### Azure example (preview)
+### Azure (preview)
 
 ```python
 from optiv_lib.providers.azure.session import AzureSession
 from optiv_lib.providers.azure.network.vnets.api import list_vnets
 
-az = AzureSession.from_default()  # uses default credential flow
+az = AzureSession.from_default()
 for vnet in list_vnets(az, subscription_id="<sub-id>"):
     print(vnet.name, vnet.location)
 ```
@@ -68,24 +72,24 @@ for vnet in list_vnets(az, subscription_id="<sub-id>"):
 
 ## Concepts
 
-* **Config**: Small, explicit configuration objects (hostnames, creds, verify).
-* **Session**: Reusable, provider-specific HTTP clients.
-* **Models**: Typed request/response shapes for safer code.
-* **Ensure helpers**: Create/update/no-change flows for idempotence.
+* **Config** – explicit configuration objects
+* **Session** – reusable provider HTTP clients
+* **Models** – typed request/response shapes
+* **Ensure helpers** – idempotent create/update/no-change
 
 ---
 
 ## Status
 
-* PAN-OS: Production-ready core (objects, policies, commits).
-* Azure: Networking coverage in progress; API surface stabilizing.
-* Breaking changes may occur before 1.0. Pin versions.
+* PAN-OS: Production-ready core (objects, policies, commits)
+* Azure: Networking coverage in progress
+* <1.0 may change APIs. Pin versions.
 
 ---
 
 ## Logging
 
-Structured, human-readable logs by default. Set `OPTIV_LOG=DEBUG` for verbose output.
+Structured logs by default. Set `OPTIV_LOG=DEBUG` for verbose output.
 
 ---
 
@@ -95,25 +99,88 @@ Structured, human-readable logs by default. Set `OPTIV_LOG=DEBUG` for verbose ou
 python -m pytest -q
 ```
 
-Unit tests prefer local doubles over live API calls.
-
 ---
 
-## Versioning
+# 🧪 Development and Editable Installs
 
-Semantic versioning pre-1.0 with care for backward compatibility where possible.
+This section is for contributors and internal builds.
+
+### What is “editable”?
+
+An **editable install** (`pip install -e .`) links your working copy into the environment instead of copying built files. Changes to source take effect immediately without reinstalling. Use it only for local development, not for production use.
+
+#### Editable install (local dev)
+
+```bash
+pip install -U pip
+pip install -e .
+```
+
+#### Uninstall editable
+
+```bash
+pip uninstall -y optiv-lib
+```
+
+### Build and Publish (GitHub releases)
+
+1. **Bump version**
+
+```bash
+# pyproject.toml
+version = "<version>"
+```
+
+2. **Commit and tag**
+
+```bash
+git add -A
+git commit -m "v<version>"
+git tag v<version>
+git push origin main --tags
+```
+
+3. **Build artifacts**
+
+```bash
+rm -rf dist build *.egg-info
+python -m pip install -U build
+python -m build
+# dist/optiv_lib-<version>-py3-none-any.whl
+```
+
+4. **Create GitHub Release and attach files**
+
+* GitHub → Releases → Draft new release → choose tag `v<version>`
+* Upload:
+
+  * `dist/optiv_lib-<version>-py3-none-any.whl`
+  * (optional) `dist/optiv-lib-<version>.tar.gz`
+* Publish
+
+**Resulting install URL:**
+
+```
+https://github.com/<org>/optiv-lib/releases/download/v<version>/optiv_lib-<version>-py3-none-any.whl
+```
+
+### Force reinstall during testing
+
+```bash
+pip install --no-cache-dir --force-reinstall "git+https://github.com/<org>/optiv-lib@v<version>"
+```
 
 ---
 
 ## Contributing
 
-Small, focused PRs. Include type hints, docstrings, and a minimal test. Keep APIs simple.
+Small, focused PRs with type hints, docstrings, and minimal tests. Keep APIs simple.
 
 ---
 
 ## Security
 
-Do not commit secrets. Prefer environment variables or your organization’s secret manager.
+Do not commit secrets. Use environment variables or your org’s secret manager.
 
 ---
 
@@ -149,7 +216,7 @@ if __name__ == "__main__":
 
 ## Roadmap (short)
 
-* Azure: fuller coverage for routes, NICs, gateways
+* Azure: routes, NICs, gateways
 * PAN-OS: higher-level policy builders and diffs
 * CLI helpers for common tasks
 
@@ -157,4 +224,9 @@ if __name__ == "__main__":
 
 ## Support
 
-File issues and feature requests in the repository’s tracker.
+Open issues and feature requests in the repo tracker.
+
+```
+
+Source sections preserved and reorganized from your original README (Install, Quick Start, Concepts, Status). :contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2}
+```
